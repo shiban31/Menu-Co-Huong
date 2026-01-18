@@ -10,158 +10,138 @@
         body { font-family: 'Lexend', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .category-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 700; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .animate-up { animation: slideUp 0.3s ease-out; }
+        .modal { transition: opacity 0.25s ease; }
         .admin-page { display: none; position: fixed; inset: 0; background: #f3f4f6; z-index: 100; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-24">
 
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="p-4 flex justify-between items-center gap-4">
-            <h1 class="text-xl font-bold text-blue-600 shrink-0 uppercase">CÔ HƯƠNG - CAFE & SNACK</h1>
-            <div class="flex items-center gap-3">
-                <select id="serviceType" onchange="checkServiceType()" class="bg-blue-50 text-blue-700 text-sm font-semibold py-1.5 px-3 rounded-full outline-none border border-blue-200">
-                    <option value="Dùng tại quán">Tại quán</option>
-                    <option value="Giao hàng tận nơi">Giao hàng</option>
-                </select>
-                <button onclick="accessAdmin()" class="p-2 text-gray-400 hover:text-blue-600">⚙️</button>
+    <div id="customerPage">
+        <header class="bg-white shadow-sm sticky top-0 z-40">
+            <div class="p-4 flex justify-between items-center gap-4">
+                <h1 class="text-xl font-bold text-blue-600 uppercase">CÔ HƯƠNG - CAFE</h1>
+                <div class="flex items-center gap-3">
+                    <select id="serviceType" onchange="checkServiceType()" class="bg-blue-50 text-blue-700 text-sm font-semibold py-1.5 px-3 rounded-full outline-none">
+                        <option value="Dùng tại quán">Tại quán</option>
+                        <option value="Giao hàng tận nơi">Giao hàng</option>
+                    </select>
+                    <button onclick="accessAdmin()" class="p-2 text-gray-400">⚙️</button>
+                </div>
             </div>
-        </div>
-
-        <div class="px-4 pb-3">
-            <div class="relative group">
-                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">🔍</span>
-                <input type="text" id="menuSearch" oninput="renderCustomerMenu()" placeholder="Tìm món bạn thích..." 
-                    class="w-full bg-gray-100 border-none rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-400 transition-all">
+            <div class="px-4 pb-3">
+                <input type="text" id="menuSearch" oninput="renderCustomerMenu()" placeholder="Tìm món..." class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none">
             </div>
-        </div>
+            <div class="flex overflow-x-auto hide-scrollbar px-4 gap-6 border-b">
+                <button onclick="filterByCat('Tất cả')" class="cat-btn py-3 text-gray-500 whitespace-nowrap category-active">Tất cả</button>
+                <button onclick="filterByCat('Đồ uống')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ uống</button>
+                <button onclick="filterByCat('Đồ ăn vặt')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ ăn vặt</button>
+            </div>
+        </header>
 
-        <div class="flex overflow-x-auto hide-scrollbar px-4 gap-6 border-b border-gray-100">
-            <button onclick="filterByCat('Tất cả')" class="cat-btn py-3 text-gray-500 whitespace-nowrap category-active" id="btn-all">Tất cả</button>
-            <button onclick="filterByCat('Đồ uống')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ uống</button>
-            <button onclick="filterByCat('Đồ ăn vặt')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ ăn vặt</button>
-        </div>
-    </header>
-
-    <main class="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="menuGrid"></main>
-
-    <div id="noMatch" class="hidden text-center py-20">
-        <p class="text-gray-400 italic">Món này hiện chưa có bạn ơi...</p>
+        <main class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4" id="menuGrid"></main>
     </div>
 
-    <div id="floatingCart" onclick="toggleOrderModal()" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center cursor-pointer hidden z-50 transition-all active:scale-95">
+    <div id="floatingCart" onclick="toggleOrderModal()" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center cursor-pointer hidden z-50">
         <div class="flex items-center gap-3">
             <span class="bg-white text-blue-600 w-7 h-7 flex items-center justify-center rounded-full font-bold" id="cartCount">0</span>
-            <span class="font-semibold uppercase tracking-wide text-sm">Xem đơn hàng</span>
+            <span class="font-semibold uppercase text-sm">Xem đơn hàng</span>
         </div>
         <span class="font-bold text-lg" id="cartTotal">0đ</span>
     </div>
 
-    <div id="qtyModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl animate-up">
-            <img id="modalImg" src="" class="w-full h-44 object-cover">
-            <div class="p-6 text-center">
-                <h3 id="modalName" class="text-xl font-bold text-gray-800 uppercase">Tên món</h3>
-                <p id="modalPrice" class="text-blue-600 font-bold text-lg mb-4">0đ</p>
-                <div class="flex justify-center items-center gap-8 mb-6">
-                    <button onclick="changeQty(-1)" class="w-12 h-12 border-2 border-gray-200 rounded-full text-2xl font-bold text-gray-400">-</button>
-                    <span id="modalQty" class="text-3xl font-bold w-8">1</span>
-                    <button onclick="changeQty(1)" class="w-12 h-12 border-2 border-blue-600 rounded-full text-2xl font-bold text-blue-600">+</button>
+    <div id="adminPage" class="admin-page p-4 md:p-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold uppercase">Quản Lý Menu</h1>
+                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Thoát</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-200">
+                <h2 class="text-lg font-semibold mb-4 text-blue-600">Thêm Món Mới</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <input type="text" id="itemName" placeholder="Tên món..." class="border p-2.5 rounded-lg outline-none">
+                    <input type="number" id="itemPrice" placeholder="Giá..." class="border p-2.5 rounded-lg outline-none">
+                    <select id="itemCategory" class="border p-2.5 rounded-lg bg-white">
+                        <option value="Đồ uống">Đồ uống</option>
+                        <option value="Đồ ăn vặt">Đồ ăn vặt</option>
+                    </select>
+                    <input type="file" id="itemFile" accept="image/*" class="text-xs">
+                    <button id="btnAdd" onclick="addItem()" class="bg-blue-600 text-white px-4 py-2.5 rounded-lg font-semibold">Lưu Món</button>
                 </div>
-                <button onclick="addToCart()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg">Thêm vào đơn</button>
-                <button onclick="closeQtyModal()" class="mt-4 text-gray-400 font-medium">Để sau</button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="p-4">Ảnh</th>
+                            <th class="p-4">Tên</th>
+                            <th class="p-4">Giá</th>
+                            <th class="p-4 text-center">Trạng thái</th>
+                            <th class="p-4 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminMenuList" class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <div id="orderModal" class="fixed inset-0 bg-white z-[70] hidden flex flex-col">
-        <div class="p-4 border-b flex items-center justify-between sticky top-0 bg-white">
-            <button onclick="toggleOrderModal()" class="text-gray-400 text-xl font-bold">✕</button>
-            <h2 class="font-bold text-lg uppercase">Chi tiết đơn hàng</h2>
-            <div class="w-10"></div>
+        <div class="p-4 border-b flex items-center justify-between">
+            <button onclick="toggleOrderModal()" class="text-xl font-bold">✕</button>
+            <h2 class="font-bold text-lg uppercase">Đơn hàng của bạn</h2>
+            <div class="w-5"></div>
         </div>
-        
-        <div class="flex-1 overflow-y-auto p-4 space-y-4">
-            <div id="orderItemsList" class="space-y-3"></div>
-            <div class="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100 space-y-4">
-                <h3 class="font-bold text-blue-800 flex items-center gap-2">📍 Thông tin khách hàng</h3>
-                <input type="text" id="custName" placeholder="Tên của bạn..." class="w-full p-3 rounded-xl border border-blue-200 outline-none">
-                <input type="tel" id="custPhone" placeholder="Số điện thoại..." class="w-full p-3 rounded-xl border border-blue-200 outline-none">
-                <div id="deliveryForm" class="hidden">
-                    <textarea id="custAddress" placeholder="Địa chỉ giao hàng..." class="w-full p-3 rounded-xl border border-blue-200 outline-none h-20 mt-2"></textarea>
-                </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="orderItemsList"></div>
+        <div class="p-6 border-t bg-gray-50">
+            <div class="space-y-3 mb-4">
+                <input type="text" id="custName" placeholder="Tên của bạn" class="w-full p-3 rounded-lg border">
+                <input type="tel" id="custPhone" placeholder="Số điện thoại" class="w-full p-3 rounded-lg border">
+                <textarea id="custAddress" placeholder="Địa chỉ (nếu giao hàng)" class="w-full p-3 rounded-lg border hidden"></textarea>
             </div>
-        </div>
-
-        <div class="p-6 border-t bg-white">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <span class="text-gray-400 text-sm block">Tổng cộng</span>
-                    <span id="finalTotal" class="text-2xl font-bold text-blue-600">0đ</span>
-                </div>
-                <button onclick="confirmOrder()" class="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold text-lg">GỬI QUA ZALO</button>
+            <div class="flex justify-between items-center">
+                <span id="finalTotal" class="text-2xl font-bold text-blue-600">0đ</span>
+                <button onclick="confirmOrder()" class="bg-green-600 text-white px-8 py-4 rounded-xl font-bold">GỬI QUA ZALO</button>
             </div>
         </div>
     </div>
 
-    <div id="adminPage" class="admin-page p-4">
-        <div class="max-w-5xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-xl font-bold uppercase">QUẢN LÝ THỰC ĐƠN</h1>
-                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">THOÁT</button>
-            </div>
-
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-8 border">
-                <h2 class="font-bold mb-4 text-blue-600">Thêm Món Mới</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-                    <input type="text" id="itemName" placeholder="Tên món..." class="border p-2 rounded-lg">
-                    <input type="number" id="itemPrice" placeholder="Giá..." class="border p-2 rounded-lg">
-                    <select id="itemCategory" class="border p-2 rounded-lg">
-                        <option value="Đồ uống">Đồ uống</option>
-                        <option value="Đồ ăn vặt">Đồ ăn vặt</option>
-                    </select>
-                    <input type="file" id="itemFile" accept="image/*" class="text-xs">
-                    <button id="btnAdd" onclick="addItem()" class="bg-blue-600 text-white p-2 rounded-lg font-bold">Lưu</button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="p-3">Ảnh</th>
-                                <th class="p-3">Tên</th>
-                                <th class="p-3">Giá</th>
-                                <th class="p-3">Sửa/Xóa</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminMenuList" class="divide-y"></tbody>
-                    </table>
+    <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[110]">
+        <div class="modal-overlay absolute w-full h-full bg-black opacity-50" onclick="toggleEditModal()"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 p-6 overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4">Chỉnh sửa món</h3>
+            <input type="hidden" id="editId">
+            <div class="space-y-4">
+                <input type="text" id="editName" class="w-full border p-2 rounded-lg" placeholder="Tên món">
+                <input type="number" id="editPrice" class="w-full border p-2 rounded-lg" placeholder="Giá">
+                <select id="editCategory" class="w-full border p-2 rounded-lg">
+                    <option value="Đồ uống">Đồ uống</option>
+                    <option value="Đồ ăn vặt">Đồ ăn vặt</option>
+                </select>
+                <input type="file" id="editFile" class="text-xs">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button onclick="toggleEditModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Hủy</button>
+                    <button id="btnUpdate" onclick="updateItem()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold">Cập Nhật</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CẤU HÌNH ---
         const CONFIG = {
-            // Token đã lách luật quét tự động
             token_rev: 'KCGVs3iu1ql tZ yj acIWH5dDAKQR oXJQ t5t0 _phg'.replace(/\s/g, '').split('').reverse().join(''),
             username: 'shiban31',
             repo: 'Menu-Co-Huong',
             file: 'menu.json',
-            zalo_phone: '0338016477' // <--- THAY SỐ ZALO CỦA BẠN VÀO ĐÂY
+            zalo_phone: '0338016477' // <--- THAY SỐ ZALO CỦA BẠN
         };
 
         let menu = [];
         let cart = [];
-        let currentItem = null;
-        let tempQty = 1;
         let currentCat = 'Tất cả';
 
-        // 1. DỮ LIỆU
+        // TẢI DỮ LIỆU
         async function loadData() {
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}?t=${Date.now()}`);
@@ -170,9 +150,10 @@
                 menu = JSON.parse(content);
                 renderCustomerMenu();
                 renderAdminMenu();
-            } catch (e) { console.log("Khởi tạo mới."); }
+            } catch (e) { console.log("Chưa có file menu.json trên GitHub."); }
         }
 
+        // LƯU DỮ LIỆU LÊN GITHUB
         async function saveData() {
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`);
@@ -181,27 +162,29 @@
                 await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${CONFIG.token_rev}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "update", content: content, sha: fileData.sha })
+                    body: JSON.stringify({ message: "Update Menu", content: content, sha: fileData.sha })
                 });
                 renderCustomerMenu();
                 renderAdminMenu();
-            } catch (e) { alert("Lỗi lưu GitHub!"); }
+            } catch (e) { alert("Lỗi lưu lên GitHub! Kiểm tra lại Token."); }
         }
 
-        // 2. HIỂN THỊ KHÁCH HÀNG
+        // --- GIAO DIỆN KHÁCH ---
         function renderCustomerMenu() {
             const grid = document.getElementById('menuGrid');
             const search = document.getElementById('menuSearch').value.toLowerCase();
             grid.innerHTML = '';
             const filtered = menu.filter(m => (currentCat === 'Tất cả' || m.category === currentCat) && m.name.toLowerCase().includes(search));
-            document.getElementById('noMatch').classList.toggle('hidden', filtered.length > 0);
+            
             filtered.forEach(item => {
+                const isOut = item.inStock === false;
                 grid.innerHTML += `
-                    <div onclick="openQtyModal(${item.id})" class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 active:scale-95 transition-all">
-                        <img src="${item.image || 'https://placehold.co/400x400'}" class="w-full h-36 object-cover">
+                    <div onclick="${isOut ? '' : `addToCartDirect(${item.id})`}" class="bg-white rounded-2xl overflow-hidden shadow-sm border relative ${isOut ? 'opacity-60 grayscale' : 'active:scale-95'} transition-all">
+                        <img src="${item.image || 'https://placehold.co/400x400'}" class="w-full h-32 object-cover">
+                        ${isOut ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white font-bold text-xs uppercase">Hết hàng</div>' : ''}
                         <div class="p-3">
                             <h3 class="font-bold text-gray-800 text-xs h-8 line-clamp-2 uppercase">${item.name}</h3>
-                            <p class="text-blue-600 font-black text-sm mt-1">${item.price.toLocaleString()}đ</p>
+                            <p class="text-blue-600 font-bold text-sm mt-1">${item.price.toLocaleString()}đ</p>
                         </div>
                     </div>`;
             });
@@ -209,31 +192,16 @@
 
         function filterByCat(cat) {
             currentCat = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('category-active'));
-            event.target.classList.add('category-active');
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('category-active', b.innerText === cat));
             renderCustomerMenu();
         }
 
-        // 3. GIỎ HÀNG & MODAL
-        function openQtyModal(id) {
-            currentItem = menu.find(m => m.id === id);
-            tempQty = 1;
-            document.getElementById('modalName').innerText = currentItem.name;
-            document.getElementById('modalPrice').innerText = currentItem.price.toLocaleString() + 'đ';
-            document.getElementById('modalImg').src = currentItem.image;
-            document.getElementById('modalQty').innerText = tempQty;
-            document.getElementById('qtyModal').classList.remove('hidden');
-        }
-
-        function closeQtyModal() { document.getElementById('qtyModal').classList.add('hidden'); }
-        function changeQty(n) { tempQty = Math.max(1, tempQty + n); document.getElementById('modalQty').innerText = tempQty; }
-
-        function addToCart() {
-            const existing = cart.find(c => c.id === currentItem.id);
-            if(existing) existing.qty += tempQty;
-            else cart.push({ ...currentItem, qty: tempQty });
+        function addToCartDirect(id) {
+            const item = menu.find(m => m.id === id);
+            const exist = cart.find(c => c.id === id);
+            if(exist) exist.qty++;
+            else cart.push({...item, qty: 1});
             updateCartUI();
-            closeQtyModal();
         }
 
         function updateCartUI() {
@@ -244,101 +212,28 @@
             document.getElementById('cartTotal').innerText = total.toLocaleString() + 'đ';
         }
 
-        function toggleOrderModal() {
-            document.getElementById('orderModal').classList.toggle('hidden');
-            renderOrderItems();
-        }
-
-        function renderOrderItems() {
-            const list = document.getElementById('orderItemsList');
-            list.innerHTML = '';
-            let total = 0;
-            cart.forEach(item => {
-                total += item.price * item.qty;
-                list.innerHTML += `
-                    <div class="flex items-center gap-3 bg-white p-2 rounded-xl border">
-                        <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover">
-                        <div class="flex-1 text-xs">
-                            <h4 class="font-bold uppercase">${item.name}</h4>
-                            <p class="text-blue-500">${item.price.toLocaleString()}đ</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 border rounded-full">-</button>
-                            <span class="text-xs font-bold">${item.qty}</span>
-                            <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 border rounded-full text-blue-600">+</button>
-                        </div>
-                    </div>`;
-            });
-            document.getElementById('finalTotal').innerText = total.toLocaleString() + 'đ';
-        }
-
-        function updateCartQty(id, n) {
-            const item = cart.find(c => c.id === id);
-            item.qty += n;
-            if(item.qty <= 0) cart = cart.filter(c => c.id !== id);
-            renderOrderItems();
-            updateCartUI();
-            if(cart.length === 0) toggleOrderModal();
-        }
-
-        // 4. GỬI ĐƠN QUA ZALO
-        function confirmOrder() {
-            const type = document.getElementById('serviceType').value;
-            const n = document.getElementById('custName').value;
-            const p = document.getElementById('custPhone').value;
-            const a = document.getElementById('custAddress').value;
-
-            if (!n || !p) return alert("Vui lòng nhập Tên và SĐT!");
-            if (type === "Giao hàng tận nơi" && !a) return alert("Vui lòng nhập địa chỉ!");
-
-            let bill = `🛒 ĐƠN HÀNG MỚI - CÔ HƯƠNG\n`;
-            bill += `--------------------------\n`;
-            cart.forEach(item => { bill += `• ${item.name} x${item.qty}\n`; });
-            bill += `--------------------------\n💰 TỔNG: ${document.getElementById('finalTotal').innerText}\n📍 Loại: ${type}\n👤 Khách: ${n}\n📞 SĐT: ${p}`;
-            if(a) bill += `\n🏠 ĐC: ${a}`;
-
-            alert("Đơn hàng đã copy! Trình duyệt sẽ mở Zalo, hãy DÁN đơn hàng vào tin nhắn cho quán nhé.");
-            navigator.clipboard.writeText(bill).then(() => {
-                window.location.href = `https://zalo.me/${CONFIG.zalo_phone}`;
-            });
-            cart = []; updateCartUI(); toggleOrderModal();
-        }
-
-        function checkServiceType() {
-            document.getElementById('deliveryForm').classList.toggle('hidden', document.getElementById('serviceType').value === "Dùng tại quán");
-        }
-
-        // 5. QUẢN TRỊ
-        function accessAdmin() {
-            const pass = prompt("Mật khẩu:");
-            if (pass === '123456') document.getElementById('adminPage').style.display = 'block';
-            else alert("Sai!");
-        }
-
-        function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; }
-
+        // --- QUẢN TRỊ ---
         async function addItem() {
             const name = document.getElementById('itemName').value;
             const price = document.getElementById('itemPrice').value;
-            const category = document.getElementById('itemCategory').value;
+            const cat = document.getElementById('itemCategory').value;
             const file = document.getElementById('itemFile').files[0];
-            if (!name || !price) return;
-            
-            const btn = document.getElementById('btnAdd');
-            btn.innerText = "⏳"; btn.disabled = true;
+            if(!name || !price) return alert("Nhập đủ thông tin!");
 
-            let img = "https://placehold.co/100x100?text=Food";
-            if (file) {
-                img = await new Promise(r => {
+            document.getElementById('btnAdd').innerText = "⏳ Đang lưu...";
+            let imgBase64 = "https://placehold.co/100x100?text=Food";
+            if(file) {
+                imgBase64 = await new Promise(r => {
                     const reader = new FileReader();
                     reader.readAsDataURL(file);
                     reader.onload = () => r(reader.result);
                 });
             }
 
-            menu.push({ id: Date.now(), name, price: parseInt(price), category, image: img });
+            menu.push({ id: Date.now(), name, price: parseInt(price), category: cat, image: imgBase64, inStock: true });
             await saveData();
-            btn.innerText = "Lưu"; btn.disabled = false;
+            document.getElementById('btnAdd').innerText = "Lưu Món";
+            document.getElementById('itemName').value = ''; document.getElementById('itemPrice').value = '';
         }
 
         function renderAdminMenu() {
@@ -346,22 +241,108 @@
             tbody.innerHTML = '';
             menu.forEach(item => {
                 tbody.innerHTML += `
-                    <tr>
-                        <td class="p-2"><img src="${item.image}" class="w-10 h-10 object-cover rounded"></td>
-                        <td class="p-2 font-bold">${item.name}</td>
-                        <td class="p-2">${item.price.toLocaleString()}đ</td>
-                        <td class="p-2">
-                            <button onclick="deleteItem(${item.id})" class="text-red-500">Xóa</button>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-4"><img src="${item.image}" class="w-12 h-12 rounded object-cover"></td>
+                        <td class="p-4 font-bold text-xs uppercase">${item.name}</td>
+                        <td class="p-4 text-blue-600 font-bold">${item.price.toLocaleString()}đ</td>
+                        <td class="p-4 text-center">
+                            <button onclick="toggleStock(${item.id})" class="text-[10px] px-3 py-1 rounded-full font-bold ${item.inStock !== false ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                ${item.inStock !== false ? 'CÒN HÀNG' : 'HẾT HÀNG'}
+                            </button>
+                        </td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="openEdit(${item.id})" class="text-blue-500 text-xs">Sửa</button>
+                            <button onclick="deleteItem(${item.id})" class="text-red-400 text-xs">Xóa</button>
                         </td>
                     </tr>`;
             });
         }
 
+        async function toggleStock(id) {
+            const item = menu.find(i => i.id === id);
+            item.inStock = (item.inStock === false) ? true : false;
+            await saveData();
+        }
+
         async function deleteItem(id) {
-            if(confirm("Xóa?")) {
+            if(confirm("Chắc chắn xóa?")) {
                 menu = menu.filter(i => i.id !== id);
                 await saveData();
             }
+        }
+
+        function openEdit(id) {
+            const item = menu.find(i => i.id === id);
+            document.getElementById('editId').value = item.id;
+            document.getElementById('editName').value = item.name;
+            document.getElementById('editPrice').value = item.price;
+            document.getElementById('editCategory').value = item.category;
+            toggleEditModal();
+        }
+
+        async function updateItem() {
+            const id = parseInt(document.getElementById('editId').value);
+            const item = menu.find(i => i.id === id);
+            const file = document.getElementById('editFile').files[0];
+            
+            document.getElementById('btnUpdate').innerText = "⏳...";
+            item.name = document.getElementById('editName').value;
+            item.price = parseInt(document.getElementById('editPrice').value);
+            item.category = document.getElementById('editCategory').value;
+            
+            if(file) {
+                item.image = await new Promise(r => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => r(reader.result);
+                });
+            }
+            await saveData();
+            document.getElementById('btnUpdate').innerText = "Cập Nhật";
+            toggleEditModal();
+        }
+
+        // --- HÀM HỖ TRỢ ---
+        function accessAdmin() { if(prompt("Mật khẩu:") === '123456') document.getElementById('adminPage').style.display = 'block'; }
+        function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; }
+        function toggleEditModal() { 
+            const m = document.getElementById('editModal');
+            m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none');
+        }
+        function toggleOrderModal() {
+            document.getElementById('orderModal').classList.toggle('hidden');
+            renderOrderItems();
+        }
+        function checkServiceType() {
+            document.getElementById('custAddress').classList.toggle('hidden', document.getElementById('serviceType').value === 'Dùng tại quán');
+        }
+        function renderOrderItems() {
+            const list = document.getElementById('orderItemsList');
+            list.innerHTML = '';
+            cart.forEach(item => {
+                list.innerHTML += `<div class="flex justify-between border-b pb-2 text-sm">
+                    <span>${item.name} x${item.qty}</span>
+                    <span class="font-bold">${(item.price * item.qty).toLocaleString()}đ</span>
+                </div>`;
+            });
+            document.getElementById('finalTotal').innerText = cart.reduce((s,i)=>s+(i.price*i.qty),0).toLocaleString() + 'đ';
+        }
+
+        function confirmOrder() {
+            const n = document.getElementById('custName').value;
+            const p = document.getElementById('custPhone').value;
+            const a = document.getElementById('custAddress').value;
+            const type = document.getElementById('serviceType').value;
+            if(!n || !p) return alert("Nhập tên và số điện thoại!");
+
+            let bill = `ĐƠN HÀNG: CÔ HƯƠNG\n---\n`;
+            cart.forEach(i => bill += `${i.name} x${i.qty}\n`);
+            bill += `---\nTổng: ${document.getElementById('finalTotal').innerText}\nKhách: ${n}\nSĐT: ${p}\nLoại: ${type}\nĐC: ${a}`;
+
+            navigator.clipboard.writeText(bill).then(() => {
+                alert("Đã copy đơn! Đang mở Zalo của quán...");
+                window.location.href = `https://zalo.me/${CONFIG.zalo_phone}`;
+            });
         }
 
         loadData();
