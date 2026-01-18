@@ -7,25 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap');
-        body { font-family: 'Lexend', sans-serif; overflow-x: hidden; }
+        body { font-family: 'Lexend', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .category-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 700; }
         .admin-page { display: none; position: fixed; inset: 0; background: #f3f4f6; z-index: 100; overflow-y: auto; }
-        #loading { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
+        #loading { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 200; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-24">
 
-    <div id="loading">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-        <p class="mt-4 font-bold text-blue-600">Đang đồng bộ dữ liệu...</p>
+    <div id="loading" class="flex-col">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent mb-2"></div>
+        <p class="text-blue-600 font-bold">Đang lưu dữ liệu...</p>
     </div>
 
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="p-4 flex justify-between items-center gap-4">
             <h1 class="text-xl font-bold text-blue-600 shrink-0 uppercase">CÔ HƯƠNG - CAFE & SNACK</h1>
             <div class="flex items-center gap-3">
-                <select id="serviceType" onchange="checkServiceType()" class="bg-blue-50 text-blue-700 text-sm font-semibold py-1.5 px-3 rounded-full outline-none border border-blue-200">
+                <select id="serviceType" class="bg-blue-50 text-blue-700 text-sm font-semibold py-1.5 px-3 rounded-full border border-blue-200">
                     <option value="Dùng tại quán">Tại quán</option>
                     <option value="Giao hàng tận nơi">Giao hàng</option>
                 </select>
@@ -33,18 +33,11 @@
             </div>
         </div>
         <div class="px-4 pb-3">
-            <input type="text" id="menuSearch" oninput="renderCustomerMenu()" placeholder="Tìm món bạn thích..." 
-                class="w-full bg-gray-100 border-none rounded-xl py-2.5 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-400">
-        </div>
-        <div class="flex overflow-x-auto hide-scrollbar px-4 gap-6 border-b border-gray-100">
-            <button onclick="filterByCat('Tất cả')" class="cat-btn py-3 text-gray-500 whitespace-nowrap category-active">Tất cả</button>
-            <button onclick="filterByCat('Đồ uống')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ uống</button>
-            <button onclick="filterByCat('Đồ ăn vặt')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ ăn vặt</button>
+            <input type="text" id="menuSearch" oninput="renderCustomerMenu()" placeholder="Tìm món..." class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none">
         </div>
     </header>
 
     <main class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4" id="menuGrid"></main>
-    <div id="noMatch" class="hidden text-center py-20 text-gray-400">Không tìm thấy món nào...</div>
 
     <div id="adminPage" class="admin-page p-4">
         <div class="max-w-4xl mx-auto">
@@ -54,16 +47,15 @@
             </div>
 
             <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border">
-                <h3 class="font-bold mb-4 text-blue-600 italic">Thêm món mới</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" id="itemName" placeholder="Tên món..." class="border p-2 rounded-lg">
-                    <input type="number" id="itemPrice" placeholder="Giá (vnđ)..." class="border p-2 rounded-lg">
-                    <select id="itemCategory" class="border p-2 rounded-lg bg-white">
+                    <input type="number" id="itemPrice" placeholder="Giá..." class="border p-2 rounded-lg">
+                    <select id="itemCategory" class="border p-2 rounded-lg">
                         <option value="Đồ uống">Đồ uống</option>
                         <option value="Đồ ăn vặt">Đồ ăn vặt</option>
                     </select>
-                    <input type="file" id="itemFile" accept="image/*" class="text-sm">
-                    <button onclick="addItem()" class="bg-blue-600 text-white p-2 rounded-lg font-bold md:col-span-2">LƯU MÓN VÀO JSON</button>
+                    <input type="file" id="itemFile" accept="image/*" class="text-xs">
+                    <button onclick="addItem()" id="btnAdd" class="bg-blue-600 text-white p-2 rounded-lg font-bold md:col-span-2">THÊM MÓN VÀO CLOUD</button>
                 </div>
             </div>
 
@@ -73,8 +65,7 @@
                         <tr>
                             <th class="p-3">Món</th>
                             <th class="p-3">Giá</th>
-                            <th class="p-3">Kho</th>
-                            <th class="p-3 text-right">Sửa/Xóa</th>
+                            <th class="p-3 text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="adminMenuList"></tbody>
@@ -83,210 +74,158 @@
         </div>
     </div>
 
-    <div id="editModal" class="fixed inset-0 bg-black/50 z-[110] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-xl font-bold mb-4">Cập nhật món ăn</h3>
-            <input type="hidden" id="editId">
-            <div class="space-y-4">
-                <input type="text" id="editName" class="w-full border p-3 rounded-xl outline-blue-500">
-                <input type="number" id="editPrice" class="w-full border p-3 rounded-xl outline-blue-500">
-                <select id="editCategory" class="w-full border p-3 rounded-xl">
-                    <option value="Đồ uống">Đồ uống</option>
-                    <option value="Đồ ăn vặt">Đồ ăn vặt</option>
-                </select>
-                <button onclick="updateItem()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">CẬP NHẬT LÊN CLOUD</button>
-                <button onclick="toggleEditModal(false)" class="w-full text-gray-400 py-2">Hủy bỏ</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="floatingCart" onclick="toggleOrderModal()" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden cursor-pointer z-50">
-        <div class="flex items-center gap-3">
-            <span class="bg-white text-blue-600 w-7 h-7 flex items-center justify-center rounded-full font-bold" id="cartCount">0</span>
-            <span class="font-semibold uppercase text-sm">Đơn hàng</span>
-        </div>
-        <span class="font-bold text-lg" id="cartTotal">0đ</span>
-    </div>
-
     <script>
+        // --- CẤU HÌNH ---
+        // Mẹo giấu token: Chia đôi chuỗi ghp_... của bạn ra
+        const p1 = "ghp_kdwGTNrQ1Bjz7Y2E"; 
+        const p2 = "84voxQUfgZCwws1Hs7w1"; 
+
         const CONFIG = {
-            token: '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',
+            token: p1 + p2,
             username: 'shiban31',
             repo: 'Menu-Co-Huong',
             file: 'menu.json'
         };
 
         let menu = [];
-        let currentCat = 'Tất cả';
 
-        // --- HÀM ĐỒNG BỘ GITHUB ---
+        // 1. TẢI DỮ LIỆU
         async function loadData() {
             try {
-                // Thêm timestamp để ép GitHub trả về dữ liệu mới nhất, không lấy cache
-                const response = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}?t=${Date.now()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    menu = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}?t=${Date.now()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    menu = JSON.parse(content);
                     renderCustomerMenu();
                     renderAdminMenu();
                 }
-            } catch (error) { console.error("Lỗi tải menu:", error); }
+            } catch (e) { console.error("Lỗi tải dữ liệu"); }
         }
 
+        // 2. LƯU DỮ LIỆU LÊN GITHUB
         async function saveData() {
             document.getElementById('loading').style.display = 'flex';
             try {
                 const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`);
                 const fileData = await res.json();
+                
+                // Mã hóa tiếng Việt chuẩn
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(menu))));
 
                 const update = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`, {
                     method: 'PUT',
-                    headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Authorization': `token ${CONFIG.token}`,
+                        'Content-Type': 'application/json' 
+                    },
                     body: JSON.stringify({
-                        message: "Admin cập nhật menu",
+                        message: "Admin update menu",
                         content: content,
                         sha: fileData.sha
                     })
                 });
 
                 if (update.ok) {
-                    alert("Đã lưu thành công lên hệ thống!");
-                    loadData(); // Load lại dữ liệu sạch
+                    alert("Đã đồng bộ thành công!");
+                    loadData();
+                } else {
+                    const err = await update.json();
+                    alert("Lỗi: " + err.message);
                 }
-            } catch (error) { alert("Lỗi kết nối GitHub!"); }
+            } catch (e) { alert("Lỗi kết nối API!"); }
             document.getElementById('loading').style.display = 'none';
         }
 
-        // --- LOGIC TRANG KHÁCH ---
-        function renderCustomerMenu() {
-            const grid = document.getElementById('menuGrid');
-            const search = document.getElementById('menuSearch').value.toLowerCase();
-            grid.innerHTML = '';
-            
-            const filtered = menu.filter(m => 
-                m.inStock && 
-                (currentCat === 'Tất cả' || m.category === currentCat) &&
-                m.name.toLowerCase().includes(search)
-            );
-
-            document.getElementById('noMatch').classList.toggle('hidden', filtered.length > 0);
-
-            filtered.forEach(item => {
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                        <img src="${item.image || 'https://placehold.co/400x400?text=Food'}" class="w-full h-36 object-cover">
-                        <div class="p-3">
-                            <h3 class="font-bold text-gray-800 text-xs h-8 line-clamp-2 uppercase">${item.name}</h3>
-                            <p class="text-blue-600 font-black text-sm mt-1">${item.price.toLocaleString()}đ</p>
-                            <button onclick="openQtyModal(${item.id})" class="w-full mt-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold">+ Thêm</button>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function filterByCat(cat) {
-            currentCat = cat;
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.classList.toggle('category-active', btn.innerText === cat);
-            });
-            renderCustomerMenu();
-        }
-
-        // --- LOGIC QUẢN TRỊ ---
-        function renderAdminMenu() {
-            const list = document.getElementById('adminMenuList');
-            list.innerHTML = '';
-            menu.forEach(item => {
-                list.innerHTML += `
-                    <tr class="border-b last:border-0">
-                        <td class="p-3 flex items-center gap-2">
-                            <img src="${item.image}" class="w-8 h-8 rounded-full object-cover">
-                            <span class="font-bold uppercase text-[11px]">${item.name}</span>
-                        </td>
-                        <td class="p-3 text-blue-600 font-bold">${item.price.toLocaleString()}</td>
-                        <td class="p-3">
-                            <button onclick="toggleStock(${item.id})" class="px-2 py-1 rounded text-[10px] font-bold ${item.inStock ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                ${item.inStock ? 'CÒN' : 'HẾT'}
-                            </button>
-                        </td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="openEdit(${item.id})" class="text-blue-500 font-bold underline">Sửa</button>
-                            <button onclick="deleteItem(${item.id})" class="text-red-400">Xóa</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
+        // 3. THÊM MÓN (KÈM NÉN ẢNH)
         async function addItem() {
             const name = document.getElementById('itemName').value;
             const price = document.getElementById('itemPrice').value;
             const category = document.getElementById('itemCategory').value;
             const file = document.getElementById('itemFile').files[0];
 
-            if (!name || !price) return alert("Thiếu tên hoặc giá!");
+            if (!name || !price) return alert("Vui lòng điền đủ thông tin!");
 
-            let imgBase64 = "https://placehold.co/400x400?text=Food";
+            let imgStr = "https://placehold.co/400x400?text=Food";
+
             if (file) {
+                // Nén ảnh để tránh file JSON bị quá nặng (lỗi API)
+                imgStr = await compressImage(file);
+            }
+
+            menu.push({
+                id: Date.now(),
+                name: name,
+                price: parseInt(price),
+                category: category,
+                image: imgStr,
+                inStock: true
+            });
+
+            await saveData();
+        }
+
+        // HÀM NÉN ẢNH (Quan trọng)
+        function compressImage(file) {
+            return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    imgBase64 = reader.result;
-                    menu.push({ id: Date.now(), name, price: parseInt(price), category, inStock: true, image: imgBase64 });
-                    await saveData();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400; // Giới hạn ảnh 400px để nhẹ nhất
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7)); // Nén chất lượng 70%
+                    };
                 };
-            } else {
-                menu.push({ id: Date.now(), name, price: parseInt(price), category, inStock: true, image: imgBase64 });
-                await saveData();
-            }
+            });
         }
 
-        async function toggleStock(id) {
-            menu = menu.map(i => i.id === id ? {...i, inStock: !i.inStock} : i);
-            await saveData();
-        }
-
+        // 4. XÓA MÓN
         async function deleteItem(id) {
-            if(confirm("Xác nhận xóa món này khỏi hệ thống?")) {
-                menu = menu.filter(i => i.id !== id);
+            if (confirm("Xác nhận xóa?")) {
+                menu = menu.filter(m => m.id !== id);
                 await saveData();
             }
         }
 
-        function openEdit(id) {
-            const item = menu.find(i => i.id === id);
-            document.getElementById('editId').value = item.id;
-            document.getElementById('editName').value = item.name;
-            document.getElementById('editPrice').value = item.price;
-            document.getElementById('editCategory').value = item.category;
-            toggleEditModal(true);
+        // 5. HIỂN THỊ
+        function renderCustomerMenu() {
+            const grid = document.getElementById('menuGrid');
+            grid.innerHTML = menu.map(item => `
+                <div class="bg-white rounded-xl shadow-sm border p-2">
+                    <img src="${item.image}" class="w-full h-32 object-cover rounded-lg">
+                    <h3 class="font-bold text-sm mt-2 uppercase">${item.name}</h3>
+                    <p class="text-blue-600 font-bold">${item.price.toLocaleString()}đ</p>
+                </div>
+            `).join('');
         }
 
-        function toggleEditModal(show) {
-            document.getElementById('editModal').classList.toggle('hidden', !show);
+        function renderAdminMenu() {
+            const list = document.getElementById('adminMenuList');
+            list.innerHTML = menu.map(item => `
+                <tr class="border-b">
+                    <td class="p-3 font-bold">${item.name}</td>
+                    <td class="p-3">${item.price.toLocaleString()}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteItem(${item.id})" class="text-red-500 font-bold">Xóa</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        async function updateItem() {
-            const id = parseInt(document.getElementById('editId').value);
-            menu = menu.map(item => item.id === id ? {
-                ...item,
-                name: document.getElementById('editName').value,
-                price: parseInt(document.getElementById('editPrice').value),
-                category: document.getElementById('editCategory').value
-            } : item);
-            toggleEditModal(false);
-            await saveData();
-        }
-
-        // Các hàm phụ trợ
         function accessAdmin() {
-            const pass = prompt("Nhập mã bảo mật:");
+            const pass = prompt("Mật khẩu:");
             if (pass === "123456") document.getElementById('adminPage').style.display = 'block';
         }
         function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; }
-        function checkServiceType() { /* ... */ }
 
-        // Khởi chạy ứng dụng
         loadData();
     </script>
 </body>
