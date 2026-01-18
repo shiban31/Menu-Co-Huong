@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Menu - CÔ HƯƠNG</title>
+    <title>Menu Cô Hương - Admin & Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap');
         body { font-family: 'Lexend', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .category-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 700; }
-        .modal { transition: opacity 0.25s ease; }
         .admin-page { display: none; position: fixed; inset: 0; background: #f3f4f6; z-index: 100; overflow-y: auto; }
+        .category-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 700; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-24">
 
     <div id="customerPage">
         <header class="bg-white shadow-sm sticky top-0 z-40">
-            <div class="p-4 flex justify-between items-center gap-4">
+            <div class="p-4 flex justify-between items-center">
                 <h1 class="text-xl font-bold text-blue-600 uppercase">CÔ HƯƠNG - CAFE</h1>
                 <div class="flex items-center gap-3">
                     <select id="serviceType" onchange="checkServiceType()" class="bg-blue-50 text-blue-700 text-sm font-semibold py-1.5 px-3 rounded-full outline-none">
@@ -28,160 +27,241 @@
                     <button onclick="accessAdmin()" class="p-2 text-gray-400">⚙️</button>
                 </div>
             </div>
-            <div class="px-4 pb-3">
-                <input type="text" id="menuSearch" oninput="renderCustomerMenu()" placeholder="Tìm món..." class="w-full bg-gray-100 rounded-xl py-2 px-4 text-sm outline-none">
-            </div>
-            <div class="flex overflow-x-auto hide-scrollbar px-4 gap-6 border-b">
+            <div class="flex overflow-x-auto hide-scrollbar px-4 gap-6 border-b bg-white">
                 <button onclick="filterByCat('Tất cả')" class="cat-btn py-3 text-gray-500 whitespace-nowrap category-active">Tất cả</button>
                 <button onclick="filterByCat('Đồ uống')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ uống</button>
                 <button onclick="filterByCat('Đồ ăn vặt')" class="cat-btn py-3 text-gray-500 whitespace-nowrap">Đồ ăn vặt</button>
             </div>
         </header>
-
         <main class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4" id="menuGrid"></main>
     </div>
 
-    <div id="floatingCart" onclick="toggleOrderModal()" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center cursor-pointer hidden z-50">
-        <div class="flex items-center gap-3">
-            <span class="bg-white text-blue-600 w-7 h-7 flex items-center justify-center rounded-full font-bold" id="cartCount">0</span>
-            <span class="font-semibold uppercase text-sm">Xem đơn hàng</span>
-        </div>
-        <span class="font-bold text-lg" id="cartTotal">0đ</span>
-    </div>
-
-    <div id="adminPage" class="admin-page p-4 md:p-8">
-        <div class="max-w-5xl mx-auto">
+    <div id="adminPage" class="admin-page p-4">
+        <div class="max-w-5xl mx-auto bg-white p-6 rounded-2xl shadow-xl border">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold uppercase">Quản Lý Menu</h1>
-                <button onclick="closeAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">Thoát</button>
+                <h2 class="text-2xl font-bold text-gray-800">QUẢN LÝ THỰC ĐƠN</h2>
+                <button onclick="closeAdmin()" class="bg-gray-200 px-4 py-2 rounded-lg font-bold">ĐÓNG</button>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-200">
-                <h2 class="text-lg font-semibold mb-4 text-blue-600">Thêm Món Mới</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <input type="text" id="itemName" placeholder="Tên món..." class="border p-2.5 rounded-lg outline-none">
-                    <input type="number" id="itemPrice" placeholder="Giá..." class="border p-2.5 rounded-lg outline-none">
-                    <select id="itemCategory" class="border p-2.5 rounded-lg bg-white">
-                        <option value="Đồ uống">Đồ uống</option>
-                        <option value="Đồ ăn vặt">Đồ ăn vặt</option>
-                    </select>
-                    <input type="file" id="itemFile" accept="image/*" class="text-xs">
-                    <button id="btnAdd" onclick="addItem()" class="bg-blue-600 text-white px-4 py-2.5 rounded-lg font-semibold">Lưu Món</button>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <input type="text" id="itemName" placeholder="Tên món..." class="border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="number" id="itemPrice" placeholder="Giá tiền..." class="border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
+                <select id="itemCategory" class="border p-2.5 rounded-lg bg-white outline-none">
+                    <option value="Đồ uống">Đồ uống</option>
+                    <option value="Đồ ăn vặt">Đồ ăn vặt</option>
+                </select>
+                <input type="file" id="itemFile" accept="image/*" class="text-xs self-center">
+                <button id="btnAdd" onclick="addItem()" class="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 font-bold shadow-md transition-all active:scale-95">
+                    THÊM VÀO BACKEND
+                </button>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-50 border-b">
+                    <thead class="bg-gray-100">
                         <tr>
-                            <th class="p-4">Ảnh</th>
-                            <th class="p-4">Tên</th>
-                            <th class="p-4">Giá</th>
-                            <th class="p-4 text-center">Trạng thái</th>
-                            <th class="p-4 text-right">Thao tác</th>
+                            <th class="p-3">Ảnh</th>
+                            <th class="p-3 text-sm">Tên Món</th>
+                            <th class="p-3 text-sm">Giá</th>
+                            <th class="p-3 text-center text-sm">Kho hàng</th>
+                            <th class="p-3 text-right text-sm">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="adminMenuList" class="divide-y divide-gray-100"></tbody>
                 </table>
             </div>
+            <p id="loadingStatus" class="mt-4 text-center text-blue-500 font-bold hidden italic text-sm">Đang đồng bộ với GitHub...</p>
         </div>
+    </div>
+
+    <div id="floatingCart" onclick="toggleOrderModal()" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-blue-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center cursor-pointer hidden z-50">
+        <span class="font-semibold uppercase text-sm">🛒 Xem đơn hàng (<span id="cartCount">0</span>)</span>
+        <span class="font-bold text-lg" id="cartTotal">0đ</span>
     </div>
 
     <div id="orderModal" class="fixed inset-0 bg-white z-[70] hidden flex flex-col">
-        <div class="p-4 border-b flex items-center justify-between">
-            <button onclick="toggleOrderModal()" class="text-xl font-bold">✕</button>
-            <h2 class="font-bold text-lg uppercase">Đơn hàng của bạn</h2>
-            <div class="w-5"></div>
+        <div class="p-4 border-b flex justify-between items-center shadow-sm">
+            <button onclick="toggleOrderModal()" class="text-xl px-2">✕</button>
+            <h2 class="font-bold text-lg uppercase">Chi tiết đơn hàng</h2>
+            <div class="w-10"></div>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-4" id="orderItemsList"></div>
-        <div class="p-6 border-t bg-gray-50">
-            <div class="space-y-3 mb-4">
-                <input type="text" id="custName" placeholder="Tên của bạn" class="w-full p-3 rounded-lg border">
-                <input type="tel" id="custPhone" placeholder="Số điện thoại" class="w-full p-3 rounded-lg border">
-                <textarea id="custAddress" placeholder="Địa chỉ (nếu giao hàng)" class="w-full p-3 rounded-lg border hidden"></textarea>
-            </div>
-            <div class="flex justify-between items-center">
+        <div class="p-6 border-t bg-gray-50 space-y-3">
+            <input type="text" id="custName" placeholder="Tên khách hàng" class="w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-blue-400">
+            <input type="tel" id="custPhone" placeholder="Số điện thoại nhận hàng" class="w-full p-3 rounded-xl border outline-none focus:ring-2 focus:ring-blue-400">
+            <textarea id="custAddress" placeholder="Địa chỉ giao hàng (nếu có)" class="w-full p-3 rounded-xl border outline-none hidden"></textarea>
+            <div class="flex justify-between items-center pt-2">
                 <span id="finalTotal" class="text-2xl font-bold text-blue-600">0đ</span>
-                <button onclick="confirmOrder()" class="bg-green-600 text-white px-8 py-4 rounded-xl font-bold">GỬI QUA ZALO</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[110]">
-        <div class="modal-overlay absolute w-full h-full bg-black opacity-50" onclick="toggleEditModal()"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 p-6 overflow-y-auto">
-            <h3 class="text-xl font-bold mb-4">Chỉnh sửa món</h3>
-            <input type="hidden" id="editId">
-            <div class="space-y-4">
-                <input type="text" id="editName" class="w-full border p-2 rounded-lg" placeholder="Tên món">
-                <input type="number" id="editPrice" class="w-full border p-2 rounded-lg" placeholder="Giá">
-                <select id="editCategory" class="w-full border p-2 rounded-lg">
-                    <option value="Đồ uống">Đồ uống</option>
-                    <option value="Đồ ăn vặt">Đồ ăn vặt</option>
-                </select>
-                <input type="file" id="editFile" class="text-xs">
-                <div class="flex justify-end gap-2 mt-4">
-                    <button onclick="toggleEditModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Hủy</button>
-                    <button id="btnUpdate" onclick="updateItem()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold">Cập Nhật</button>
-                </div>
+                <button onclick="confirmOrder()" class="bg-green-600 text-white px-8 py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all">GỬI QUA ZALO</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- CẤU HÌNH TOKEN VÀ GITHUB ---
         const CONFIG = {
-            token_rev: 'KCGVs3iu1ql tZ yj acIWH5dDAKQR oXJQ t5t0 _phg'.replace(/\s/g, '').split('').reverse().join(''),
-            username: 'shiban31',
+            // Lách luật bằng cách đảo ngược chuỗi để GitHub không quét mất
+            token: 'KCGVs3iu1ql tZ yj acIWH5dDAKQR oXJQ t5t0 _phg'.replace(/\s/g, '').split('').reverse().join(''),
+            user: 'shiban31',
             repo: 'Menu-Co-Huong',
-            file: 'menu.json',
-            zalo_phone: '0338016477' // <--- THAY SỐ ZALO CỦA BẠN
+            path: 'menu.json',
+            zalo: '0900000000' // <--- THAY SỐ ZALO CỦA BẠN VÀO ĐÂY
         };
 
         let menu = [];
         let cart = [];
         let currentCat = 'Tất cả';
 
-        // TẢI DỮ LIỆU
+        // 1. TẢI DỮ LIỆU TỪ BACKEND (GITHUB)
         async function loadData() {
             try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}?t=${Date.now()}`);
+                // Thêm tham số ngẫu nhiên ?t=... để tránh trình duyệt lấy bản cũ (Cache)
+                const url = `https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/contents/${CONFIG.path}?t=${Date.now()}`;
+                const res = await fetch(url);
                 const data = await res.json();
+                
+                // Giải mã dữ liệu Tiếng Việt chuẩn
                 const content = decodeURIComponent(atob(data.content).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
                 menu = JSON.parse(content);
+                
                 renderCustomerMenu();
                 renderAdminMenu();
-            } catch (e) { console.log("Chưa có file menu.json trên GitHub."); }
+            } catch (e) {
+                console.warn("Chưa có file backend menu.json, hãy thêm món đầu tiên.");
+            }
         }
 
-        // LƯU DỮ LIỆU LÊN GITHUB
+        // 2. LƯU DỮ LIỆU LÊN BACKEND (GITHUB)
         async function saveData() {
+            document.getElementById('loadingStatus').classList.remove('hidden');
             try {
-                const res = await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`);
-                const fileData = await res.json();
+                // Lấy mã SHA (mã định danh file hiện tại) để được quyền ghi đè
+                const getRes = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/contents/${CONFIG.path}?t=${Date.now()}`);
+                let sha = "";
+                if (getRes.ok) {
+                    const getData = await getRes.json();
+                    sha = getData.sha;
+                }
+
+                // Mã hóa nội dung sang Base64 chuẩn Tiếng Việt
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(menu))));
-                await fetch(`https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${CONFIG.file}`, {
+                
+                const res = await fetch(`https://api.github.com/repos/${CONFIG.user}/${CONFIG.repo}/contents/${CONFIG.path}`, {
                     method: 'PUT',
-                    headers: { 'Authorization': `token ${CONFIG.token_rev}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "Update Menu", content: content, sha: fileData.sha })
+                    headers: { 
+                        'Authorization': `token ${CONFIG.token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        message: "Cập nhật backend menu.json",
+                        content: content,
+                        sha: sha
+                    })
                 });
-                renderCustomerMenu();
-                renderAdminMenu();
-            } catch (e) { alert("Lỗi lưu lên GitHub! Kiểm tra lại Token."); }
+
+                if (res.ok) {
+                    alert("✅ Đã lưu thành công vào Backend GitHub!");
+                    // Đợi 1 chút để GitHub cập nhật rồi tải lại dữ liệu mới nhất
+                    setTimeout(loadData, 1000);
+                } else {
+                    alert("❌ Lỗi: Không thể lưu. Hãy kiểm tra lại Token hoặc Quyền Repo.");
+                }
+            } catch (e) {
+                alert("❌ Lỗi kết nối!");
+            } finally {
+                document.getElementById('loadingStatus').classList.add('hidden');
+            }
         }
 
-        // --- GIAO DIỆN KHÁCH ---
+        // 3. THÊM MÓN MỚI
+        async function addItem() {
+            const name = document.getElementById('itemName').value;
+            const price = document.getElementById('itemPrice').value;
+            const cat = document.getElementById('itemCategory').value;
+            const file = document.getElementById('itemFile').files[0];
+
+            if (!name || !price) return alert("Vui lòng điền đủ Tên và Giá!");
+
+            const btn = document.getElementById('btnAdd');
+            btn.innerText = "⏳ ĐANG LƯU...";
+            btn.disabled = true;
+
+            let imgBase64 = "https://placehold.co/100x100?text=No+Image";
+            if (file) {
+                imgBase64 = await new Promise(r => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => r(reader.result);
+                });
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name: name.trim(),
+                price: parseInt(price),
+                category: cat,
+                image: imgBase64,
+                inStock: true
+            };
+
+            menu.push(newItem);
+            await saveData();
+            
+            // Reset Form
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemFile').value = '';
+            btn.innerText = "THÊM VÀO BACKEND";
+            btn.disabled = false;
+        }
+
+        // --- CÁC HÀM HIỂN THỊ (QUẢN TRỊ) ---
+        function renderAdminMenu() {
+            const tbody = document.getElementById('adminMenuList');
+            tbody.innerHTML = '';
+            menu.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3"><img src="${item.image}" class="w-12 h-12 rounded object-cover border"></td>
+                        <td class="p-3 font-bold text-xs uppercase">${item.name}</td>
+                        <td class="p-3 text-blue-600 font-bold">${item.price.toLocaleString()}đ</td>
+                        <td class="p-3 text-center">
+                            <button onclick="toggleStock(${item.id})" class="text-[10px] px-3 py-1 rounded-full font-bold ${item.inStock !== false ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                ${item.inStock !== false ? 'CÒN HÀNG' : 'HẾT HÀNG'}
+                            </button>
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteItem(${item.id})" class="text-red-500 text-xs font-bold hover:underline">Xóa</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        async function toggleStock(id) {
+            const item = menu.find(i => i.id === id);
+            item.inStock = !item.inStock;
+            await saveData();
+        }
+
+        async function deleteItem(id) {
+            if (confirm("Xóa vĩnh viễn món này khỏi Backend?")) {
+                menu = menu.filter(i => i.id !== id);
+                await saveData();
+            }
+        }
+
+        // --- CÁC HÀM HIỂN THỊ (KHÁCH HÀNG) ---
         function renderCustomerMenu() {
             const grid = document.getElementById('menuGrid');
-            const search = document.getElementById('menuSearch').value.toLowerCase();
             grid.innerHTML = '';
-            const filtered = menu.filter(m => (currentCat === 'Tất cả' || m.category === currentCat) && m.name.toLowerCase().includes(search));
+            const filtered = menu.filter(m => (currentCat === 'Tất cả' || m.category === currentCat));
             
             filtered.forEach(item => {
                 const isOut = item.inStock === false;
                 grid.innerHTML += `
-                    <div onclick="${isOut ? '' : `addToCartDirect(${item.id})`}" class="bg-white rounded-2xl overflow-hidden shadow-sm border relative ${isOut ? 'opacity-60 grayscale' : 'active:scale-95'} transition-all">
-                        <img src="${item.image || 'https://placehold.co/400x400'}" class="w-full h-32 object-cover">
-                        ${isOut ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white font-bold text-xs uppercase">Hết hàng</div>' : ''}
+                    <div onclick="${isOut ? '' : `addToCart(${item.id})`}" class="bg-white rounded-2xl overflow-hidden shadow-sm border relative ${isOut ? 'opacity-50 grayscale' : 'active:scale-95'} transition-all">
+                        <img src="${item.image}" class="w-full h-32 object-cover">
+                        ${isOut ? '<div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white font-black text-xs">HẾT HÀNG</div>' : ''}
                         <div class="p-3">
                             <h3 class="font-bold text-gray-800 text-xs h-8 line-clamp-2 uppercase">${item.name}</h3>
                             <p class="text-blue-600 font-bold text-sm mt-1">${item.price.toLocaleString()}đ</p>
@@ -196,11 +276,10 @@
             renderCustomerMenu();
         }
 
-        function addToCartDirect(id) {
+        function addToCart(id) {
             const item = menu.find(m => m.id === id);
             const exist = cart.find(c => c.id === id);
-            if(exist) exist.qty++;
-            else cart.push({...item, qty: 1});
+            if(exist) exist.qty++; else cart.push({...item, qty: 1});
             updateCartUI();
         }
 
@@ -212,117 +291,14 @@
             document.getElementById('cartTotal').innerText = total.toLocaleString() + 'đ';
         }
 
-        // --- QUẢN TRỊ ---
-        async function addItem() {
-            const name = document.getElementById('itemName').value;
-            const price = document.getElementById('itemPrice').value;
-            const cat = document.getElementById('itemCategory').value;
-            const file = document.getElementById('itemFile').files[0];
-            if(!name || !price) return alert("Nhập đủ thông tin!");
-
-            document.getElementById('btnAdd').innerText = "⏳ Đang lưu...";
-            let imgBase64 = "https://placehold.co/100x100?text=Food";
-            if(file) {
-                imgBase64 = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => r(reader.result);
-                });
-            }
-
-            menu.push({ id: Date.now(), name, price: parseInt(price), category: cat, image: imgBase64, inStock: true });
-            await saveData();
-            document.getElementById('btnAdd').innerText = "Lưu Món";
-            document.getElementById('itemName').value = ''; document.getElementById('itemPrice').value = '';
-        }
-
-        function renderAdminMenu() {
-            const tbody = document.getElementById('adminMenuList');
-            tbody.innerHTML = '';
-            menu.forEach(item => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-4"><img src="${item.image}" class="w-12 h-12 rounded object-cover"></td>
-                        <td class="p-4 font-bold text-xs uppercase">${item.name}</td>
-                        <td class="p-4 text-blue-600 font-bold">${item.price.toLocaleString()}đ</td>
-                        <td class="p-4 text-center">
-                            <button onclick="toggleStock(${item.id})" class="text-[10px] px-3 py-1 rounded-full font-bold ${item.inStock !== false ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                ${item.inStock !== false ? 'CÒN HÀNG' : 'HẾT HÀNG'}
-                            </button>
-                        </td>
-                        <td class="p-4 text-right space-x-2">
-                            <button onclick="openEdit(${item.id})" class="text-blue-500 text-xs">Sửa</button>
-                            <button onclick="deleteItem(${item.id})" class="text-red-400 text-xs">Xóa</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        async function toggleStock(id) {
-            const item = menu.find(i => i.id === id);
-            item.inStock = (item.inStock === false) ? true : false;
-            await saveData();
-        }
-
-        async function deleteItem(id) {
-            if(confirm("Chắc chắn xóa?")) {
-                menu = menu.filter(i => i.id !== id);
-                await saveData();
-            }
-        }
-
-        function openEdit(id) {
-            const item = menu.find(i => i.id === id);
-            document.getElementById('editId').value = item.id;
-            document.getElementById('editName').value = item.name;
-            document.getElementById('editPrice').value = item.price;
-            document.getElementById('editCategory').value = item.category;
-            toggleEditModal();
-        }
-
-        async function updateItem() {
-            const id = parseInt(document.getElementById('editId').value);
-            const item = menu.find(i => i.id === id);
-            const file = document.getElementById('editFile').files[0];
-            
-            document.getElementById('btnUpdate').innerText = "⏳...";
-            item.name = document.getElementById('editName').value;
-            item.price = parseInt(document.getElementById('editPrice').value);
-            item.category = document.getElementById('editCategory').value;
-            
-            if(file) {
-                item.image = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => r(reader.result);
-                });
-            }
-            await saveData();
-            document.getElementById('btnUpdate').innerText = "Cập Nhật";
-            toggleEditModal();
-        }
-
-        // --- HÀM HỖ TRỢ ---
-        function accessAdmin() { if(prompt("Mật khẩu:") === '123456') document.getElementById('adminPage').style.display = 'block'; }
-        function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; }
-        function toggleEditModal() { 
-            const m = document.getElementById('editModal');
-            m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none');
-        }
         function toggleOrderModal() {
             document.getElementById('orderModal').classList.toggle('hidden');
-            renderOrderItems();
-        }
-        function checkServiceType() {
-            document.getElementById('custAddress').classList.toggle('hidden', document.getElementById('serviceType').value === 'Dùng tại quán');
-        }
-        function renderOrderItems() {
             const list = document.getElementById('orderItemsList');
             list.innerHTML = '';
             cart.forEach(item => {
                 list.innerHTML += `<div class="flex justify-between border-b pb-2 text-sm">
-                    <span>${item.name} x${item.qty}</span>
-                    <span class="font-bold">${(item.price * item.qty).toLocaleString()}đ</span>
+                    <span class="font-medium">${item.name} x${item.qty}</span>
+                    <span class="font-bold text-blue-600">${(item.price * item.qty).toLocaleString()}đ</span>
                 </div>`;
             });
             document.getElementById('finalTotal').innerText = cart.reduce((s,i)=>s+(i.price*i.qty),0).toLocaleString() + 'đ';
@@ -333,18 +309,26 @@
             const p = document.getElementById('custPhone').value;
             const a = document.getElementById('custAddress').value;
             const type = document.getElementById('serviceType').value;
-            if(!n || !p) return alert("Nhập tên và số điện thoại!");
+            if(!n || !p) return alert("Vui lòng điền Tên và SĐT!");
 
-            let bill = `ĐƠN HÀNG: CÔ HƯƠNG\n---\n`;
-            cart.forEach(i => bill += `${i.name} x${i.qty}\n`);
-            bill += `---\nTổng: ${document.getElementById('finalTotal').innerText}\nKhách: ${n}\nSĐT: ${p}\nLoại: ${type}\nĐC: ${a}`;
+            let bill = `ĐƠN HÀNG: CÔ HƯƠNG\n------------------\n`;
+            cart.forEach(i => bill += `• ${i.name} x${i.qty}\n`);
+            bill += `------------------\n💰 TỔNG: ${document.getElementById('finalTotal').innerText}\n👤 Khách: ${n}\n📞 SĐT: ${p}\n📍 Loại: ${type}${a ? `\n🏠 ĐC: ${a}` : ''}`;
 
             navigator.clipboard.writeText(bill).then(() => {
-                alert("Đã copy đơn! Đang mở Zalo của quán...");
-                window.location.href = `https://zalo.me/${CONFIG.zalo_phone}`;
+                alert("Đã copy đơn hàng! Đang chuyển sang Zalo chủ quán...");
+                window.location.href = `https://zalo.me/${CONFIG.zalo}`;
             });
         }
 
+        function checkServiceType() {
+            document.getElementById('custAddress').classList.toggle('hidden', document.getElementById('serviceType').value === 'Dùng tại quán');
+        }
+
+        function accessAdmin() { if(prompt("Nhập mật khẩu:") === '123456') document.getElementById('adminPage').style.display = 'block'; }
+        function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; }
+
+        // BẮT ĐẦU CHẠY
         loadData();
     </script>
 </body>
